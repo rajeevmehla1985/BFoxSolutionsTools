@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text to PDF Converter</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Include html2pdf library -->
+  <script src="https://raw.githack.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <h1>Text to PDF Converter</h1>
+  <textarea id="inputText" placeholder="Enter your text here..."></textarea>
+  <button onclick="convertToPDF()">Convert to PDF</button>
+</div>
+
+<script>
+  function convertToPDF() {
+    const inputText = document.getElementById('inputText').value;
+
+    // Create a new div to hold the content
+    const contentDiv = document.createElement('div');
+    contentDiv.innerHTML = inputText;
+
+    // Options for html2pdf
+    const options = {
+      margin: 10,
+      filename: 'converted-document.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    // Generate PDF
+    html2pdf(contentDiv, options);
+  }
+</script>
+
+</body>
+</html>

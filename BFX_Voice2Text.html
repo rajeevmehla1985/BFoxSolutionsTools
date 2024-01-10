@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-Speech Converter</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        h1 {
+            color: #3498db;
+        }
+        select, button {
+            font-size: 16px;
+            margin: 10px;
+            padding: 5px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            font-size: 16px;
+            margin: 10px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Text-to-Speech Converter</h1>
+
+    <label for="text">Enter Text:</label>
+    <textarea id="text" placeholder="Enter text to convert to speech..."></textarea>
+
+    <label for="language">Select Language:</label>
+    <select id="language">
+        <option value="en-US">English (US)</option>
+        <option value="es-ES">Spanish (Spain)</option>
+        <option value="fr-FR">French (France)</option>
+        <!-- Add more language options as needed -->
+    </select>
+
+    <label for="voice">Select Voice:</label>
+    <select id="voice"></select>
+
+    <button onclick="convertToSpeech()">Convert to Speech</button>
+
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=YOUR_API_KEY"></script>
+    <script>
+        // Replace 'YOUR_API_KEY' with your ResponsiveVoice.js API key
+
+        // Populate voices dropdown based on selected language
+        function populateVoices() {
+            var language = document.getElementById("language").value;
+            var voices = responsiveVoice.getVoices({lang: language});
+            var voiceDropdown = document.getElementById("voice");
+
+            voiceDropdown.innerHTML = "";
+            voices.forEach(function(voice) {
+                var option = document.createElement("option");
+                option.value = voice.name;
+                option.text = voice.name;
+                voiceDropdown.add(option);
+            });
+        }
+
+        // Convert text to speech using ResponsiveVoice.js
+        function convertToSpeech() {
+            var text = document.getElementById("text").value;
+            var voice = document.getElementById("voice").value;
+            responsiveVoice.speak(text, voice);
+        }
+
+        // Initialize voices dropdown on page load
+        populateVoices();
+
+        // Update voices dropdown when language is changed
+        document.getElementById("language").addEventListener("change", function() {
+            populateVoices();
+        });
+    </script>
+
+</body>
+</html>

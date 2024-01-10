@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Resizer</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+
+        h1 {
+            color: #3498db;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        label {
+            background-color: #3498db;
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        #imgPreview {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        #dimensions {
+            width: 80%;
+            max-width: 300px;
+            margin: 10px;
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        #downloadBtn {
+            background-color: #2ecc71;
+            color: #fff;
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Image Resizer</h1>
+
+    <input type="file" id="imageInput" accept="image/*" onchange="previewImage()">
+    <label for="imageInput">Choose Image</label>
+
+    <div id="imgPreview"></div>
+
+    <label for="dimensions">Set Width or Height:</label>
+    <input type="text" id="dimensions" placeholder="Enter width or height">
+
+    <button id="downloadBtn" onclick="downloadImage()">Download Resized Image</button>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/blueimp-load-image/2.26.0/load-image.all.min.js"></script>
+    <script>
+        function previewImage() {
+            var input = document.getElementById('imageInput');
+            var imgPreview = document.getElementById('imgPreview');
+
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    imgPreview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">';
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function downloadImage() {
+            var input = document.getElementById('imageInput');
+            var dimensionsInput = document.getElementById('dimensions');
+            var imgPreview = document.getElementById('imgPreview');
+
+            if (!input.files || !input.files[0]) {
+                alert('Please choose an image first.');
+                return;
+            }
+
+            var img = new Image();
+            img.src = imgPreview.querySelector('img').src;
+
+            img.onload = function () {
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+
+                var dimensions = parseInt(dimensionsInput.value, 10);
+
+                if (isNaN(dimensions) || dimensions <= 0) {
+                    alert('Please enter a valid width or height.');
+                    return;
+                }
+
+                if (dimensionsInput.value.toLowerCase().includes('width')) {
+                    canvas.width = dimensions;
+                    canvas.height = (dimensions / img.width) * img.height;
+                } else if (dimensionsInput.value.toLowerCase().includes('height')) {
+                    canvas.width = (dimensions / img.height) * img.width;
+                    canvas.height = dimensions;
+                } else {
+                    alert('Please specify "width" or "height" in the dimension input.');
+                    return;
+                }
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                var link = document.createElement('a');
+                link.href = canvas.toDataURL('image/png');
+                link.download = 'resized_image.png';
+                link.click();
+            };
+        }
+    </script>
+
+</body>
+</html>
