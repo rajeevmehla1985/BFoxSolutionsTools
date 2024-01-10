@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screen Recorder Tool</title>
+    <!-- Include RecordRTC library -->
+    <script src="https://cdn.WebRTC-Experiment.com/RecordRTC.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+
+        #controls {
+            text-align: center;
+        }
+
+        #videoContainer {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        video {
+            width: 100%;
+            border: 2px solid #333;
+        }
+
+        #recordButton, #stopButton, #downloadButton {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        #stopButton, #downloadButton {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="videoContainer">
+        <video id="recordedVideo" playsinline controls></video>
+    </div>
+
+    <div id="controls">
+        <button id="recordButton" onclick="startRecording()">Start Recording</button>
+        <button id="stopButton" onclick="stopRecording()" disabled>Stop Recording</button>
+        <button id="downloadButton" onclick="downloadRecording()" disabled>Download Recording</button>
+    </div>
+
+    <script>
+        let recorder;
+        let stream;
+        let recordedChunks = [];
+
+        async function startRecording() {
+            try {
+                stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+                recorder = new RecordRTC(stream, { type: 'video' });
+                recorder.startRecording();
+                toggleButtons(true);
+            } catch (error) {
+                console.error('Error accessing screen:', error);
+            }
+        }
+
+        function stopRecording() {
+            recorder.stopRecording(() => {
+                stream.getTracks().forEach(track => track.stop());
+                recordedChunks = recorder.getBlob();
+                document.getElementById('recordedVideo').src = URL.createObjectURL(recordedChunks);
+                toggleButtons(false);
+            });
+        }
+
+        function downloadRecording() {
+            const blob = new Blob(recordedChunks, { type: 'video/webm' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'screen_recording.webm';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+
+        function toggleButtons(isRecording) {
+            document.getElementById('recordButton').disabled = isRecording;
+            document.getElementById('stopButton').disabled = !isRecording;
+            document.getElementById('downloadButton').disabled = !isRecording;
+            document.getElementById('recordButton').style.display = isRecording ? 'none' : 'inline-block';
+            document.getElementById('stopButton').style.display = isRecording ? 'inline-block' : 'none';
+            document.getElementById('downloadButton').style.display = isRecording ? 'inline-block' : 'none';
+        }
+    </script>
+</body>
+</html>
